@@ -1,7 +1,9 @@
 import { Circle, CircleCheck, Dumbbell, Flame, Target, Wallet } from "lucide-react";
 import { Card, CardLink, PageHeader, ProgressBar, SampleBadge, StatCard } from "@/components/dashboard";
+import { today } from "@/lib/dates";
+import { createClient } from "@/lib/supabase/server";
 
-// Placeholder content until each area is wired up to real data.
+// Placeholder content until each area is wired up to real data (training is live).
 const todaysMeals = [
   { slot: "Breakfast", meal: "Oats, whey and berries" },
   { slot: "Lunch", meal: "Chicken rice bowl" },
@@ -32,13 +34,22 @@ const projects = [
   { name: "Garage shelving", stage: "Planning", next: "Measure wall" },
 ];
 
-export default function Home() {
+async function todaysSession() {
+  const supabase = await createClient();
+  const { data } = await supabase.from("training_plan").select("label, kind").eq("day", today()).maybeSingle();
+  if (!data) return { value: "Not planned", note: "Plan your week in Training" };
+  if (data.kind === "rest") return { value: "Rest day", note: "Recover well" };
+  return { value: data.label as string, note: data.kind === "cardio" ? "Cardio, from Strava" : "From your Hevy routines" };
+}
+
+export default async function Home() {
+  const session = await todaysSession();
   return (
     <>
       <PageHeader title="Home" subtitle="Today at a glance" />
 
       <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
-        <StatCard icon={Dumbbell} accent="purple" label="Today's session" value="Push A" note="From your Hevy routines" href="/training" />
+        <StatCard icon={Dumbbell} accent="purple" label="Today's session" value={session.value} note={session.note} href="/training" />
         <StatCard icon={Flame} accent="green" label="Calorie target" value="2,650 kcal" note="P 190g · C 300g · F 75g" href="/nutrition" />
         <StatCard icon={Wallet} accent="emerald" label="Net worth" value="$48,300" note="Via PocketSmith" href="/finances" />
         <StatCard icon={Target} accent="amber" label="Active goals" value="3" note="1 milestone due this month" href="/goals" />
