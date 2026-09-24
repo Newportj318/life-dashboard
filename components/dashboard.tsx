@@ -5,6 +5,10 @@ import { User, type LucideIcon } from "lucide-react";
 import { accents, type Accent } from "@/lib/accents";
 import { ThemeToggle } from "@/components/theme-toggle";
 
+/** Square-ish button for week navigation and similar toolbars. */
+export const navBtn =
+  "inline-flex h-9 items-center gap-1 rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800";
+
 export function PageHeader({ title, subtitle }: { title: string; subtitle?: string }) {
   return (
     <div className="mb-8 flex items-start justify-between gap-4">
