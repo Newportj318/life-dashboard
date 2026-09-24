@@ -4,6 +4,7 @@
 // hover + keyboard tooltips, and a table view so no value is hover-only.
 
 import { useEffect, useRef, useState } from "react";
+import { compactMoney, money } from "@/lib/format";
 
 export type Point = { key: string; label: string; value: number };
 
@@ -15,6 +16,10 @@ const TONES: Record<Tone, { fill: string; stroke: string }> = {
 };
 
 export type Formatter = (v: number) => string;
+
+// Server pages can't hand functions to client components, so they pick a formatter by name.
+export type FormatName = "money" | "compactMoney";
+const FORMATS: Record<FormatName, Formatter> = { money: (v) => money(v), compactMoney };
 const defaultFormat = (unit: string): Formatter => (v) =>
   `${v.toLocaleString("en-AU", { maximumFractionDigits: 1 })}${unit}`;
 // Axis ticks stay bare numbers; the chart heading names the unit.
@@ -87,10 +92,10 @@ export function TableView({
 }: {
   data: Point[];
   unit?: string;
-  format?: Formatter;
+  format?: FormatName;
   columns: [string, string];
 }) {
-  const f = format ?? defaultFormat(unit);
+  const f = format ? FORMATS[format] : defaultFormat(unit);
   return (
     <details className="mt-3 text-sm">
       <summary className="cursor-pointer text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">Show table</summary>
@@ -120,15 +125,15 @@ type ChartProps = {
   unit?: string;
   height?: number;
   tone?: Tone;
-  format?: Formatter; // tooltip, labels, table
-  tick?: Formatter; // axis ticks
+  format?: FormatName; // tooltip, labels, table
+  tick?: FormatName; // axis ticks
 };
 
 export function BarChart({ data, unit = "", height = 200, label, tone = "purple", format, tick }: ChartProps) {
   const [ref, width] = useWidth<HTMLDivElement>();
   const [active, setActive] = useState<number | null>(null);
-  const f = format ?? defaultFormat(unit);
-  const tickFmt = tick ?? defaultTick;
+  const f = format ? FORMATS[format] : defaultFormat(unit);
+  const tickFmt = tick ? FORMATS[tick] : defaultTick;
 
   const ticks = ticksBetween(0, Math.max(1, ...data.map((d) => d.value)));
   const top = ticks.at(-1)!;
@@ -199,8 +204,8 @@ export function BarChart({ data, unit = "", height = 200, label, tone = "purple"
 export function LineChart({ data, unit = "", height = 200, label, tone = "purple", format, tick }: ChartProps) {
   const [ref, width] = useWidth<HTMLDivElement>();
   const [active, setActive] = useState<number | null>(null);
-  const f = format ?? defaultFormat(unit);
-  const tickFmt = tick ?? defaultTick;
+  const f = format ? FORMATS[format] : defaultFormat(unit);
+  const tickFmt = tick ? FORMATS[tick] : defaultTick;
 
   const values = data.map((d) => d.value);
   const rawMin = Math.min(...values);

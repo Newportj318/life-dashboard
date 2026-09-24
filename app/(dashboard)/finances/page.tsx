@@ -7,7 +7,6 @@ import { addDays, formatDay, today } from "@/lib/dates";
 import {
   billsTotal,
   changeSince,
-  compactMoney,
   money,
   monthlySeries,
   recordAndLoadSnapshots,
@@ -100,13 +99,13 @@ export default async function FinancesPage() {
                   label="Net worth by month"
                   tone="emerald"
                   height={220}
-                  format={(v) => money(v)}
-                  tick={compactMoney}
+                  format="money"
+                  tick="compactMoney"
                   data={history.map((s) => ({ key: s.day, label: formatDay(s.day, { month: "short", year: "numeric" }), value: s.net_worth }))}
                 />
                 <TableView
                   columns={["Month", "Net worth"]}
-                  format={(v) => money(v)}
+                  format="money"
                   data={[...history].reverse().map((s) => ({ key: s.day, label: formatDay(s.day, { month: "long", year: "numeric" }), value: s.net_worth }))}
                 />
               </>
