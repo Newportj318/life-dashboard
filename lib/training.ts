@@ -181,9 +181,14 @@ export function bodyweightSeries(rows: BodyMeasurement[]) {
     .map((r) => ({ day: r.date, value: r.weight_kg as number }));
 }
 
+// Hevy's API has no "archived" flag, so a folder with "archive" in its name hides its routines.
+const isArchiveFolder = (f: HevyFolder) => /archive/i.test(f.title);
+
 /** Routines grouped by Hevy folder, folders in Hevy's order, loose routines last. */
 export function groupRoutines(routines: HevyRoutine[], folders: HevyFolder[]): RoutineGroup[] {
-  const sorted = [...folders].sort((a, b) => (a.index ?? 0) - (b.index ?? 0));
+  const archived = new Set(folders.filter(isArchiveFolder).map((f) => f.id));
+  routines = routines.filter((r) => !(r.folder_id && archived.has(r.folder_id)));
+  const sorted = folders.filter((f) => !archived.has(f.id)).sort((a, b) => (a.index ?? 0) - (b.index ?? 0));
   const groups: RoutineGroup[] = sorted.map((f) => ({
     folder: f.title,
     routines: routines
