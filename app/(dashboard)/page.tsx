@@ -1,9 +1,12 @@
 import { Circle, CircleCheck, Dumbbell, Flame, Target, Wallet } from "lucide-react";
 import { Card, CardLink, PageHeader, ProgressBar, SampleBadge, StatCard } from "@/components/dashboard";
-import { today } from "@/lib/dates";
+import { attempt } from "@/lib/attempt";
+import { addDays, formatDay, today } from "@/lib/dates";
+import { money, summariseAccounts, upcomingBills } from "@/lib/finance";
+import { getAccounts, getEvents, pocketsmithConfigured } from "@/lib/pocketsmith";
 import { createClient } from "@/lib/supabase/server";
 
-// Placeholder content until each area is wired up to real data (training is live).
+// Placeholder content until each area is wired up to real data (training and finances are live).
 const todaysMeals = [
   { slot: "Breakfast", meal: "Oats, whey and berries" },
   { slot: "Lunch", meal: "Chicken rice bowl" },
@@ -22,12 +25,6 @@ const goals = [
   { name: "Run a sub-25 5km", value: 3, max: 5 },
 ];
 
-const bills = [
-  { name: "Rent", due: "1 Oct", amount: "$1,800" },
-  { name: "Phone", due: "3 Oct", amount: "$55" },
-  { name: "Car insurance", due: "8 Oct", amount: "$120" },
-];
-
 const projects = [
   { name: "4x4 build", stage: "Active", next: "Order suspension kit" },
   { name: "Life dashboard", stage: "Active", next: "Set up login" },
@@ -42,8 +39,18 @@ async function todaysSession() {
   return { value: data.label as string, note: data.kind === "cardio" ? "Cardio, from Strava" : "From your Hevy routines" };
 }
 
+async function moneyGlance() {
+  if (!pocketsmithConfigured()) return null;
+  const day = today();
+  const [accounts, events] = await Promise.all([attempt(getAccounts), attempt(() => getEvents(day, addDays(day, 13)))]);
+  return {
+    netWorth: accounts.data ? summariseAccounts(accounts.data).netWorth : null,
+    bills: events.data ? upcomingBills(events.data).slice(0, 4) : null,
+  };
+}
+
 export default async function Home() {
-  const session = await todaysSession();
+  const [session, finance] = await Promise.all([todaysSession(), moneyGlance()]);
   return (
     <>
       <PageHeader title="Home" subtitle="Today at a glance" />
@@ -51,7 +58,14 @@ export default async function Home() {
       <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard icon={Dumbbell} accent="purple" label="Today's session" value={session.value} note={session.note} href="/training" />
         <StatCard icon={Flame} accent="green" label="Calorie target" value="2,650 kcal" note="P 190g · C 300g · F 75g" href="/nutrition" />
-        <StatCard icon={Wallet} accent="emerald" label="Net worth" value="$48,300" note="Via PocketSmith" href="/finances" />
+        <StatCard
+          icon={Wallet}
+          accent="emerald"
+          label="Net worth"
+          value={finance?.netWorth != null ? money(finance.netWorth) : "—"}
+          note={finance ? "From PocketSmith" : "Connect PocketSmith"}
+          href="/finances"
+        />
         <StatCard icon={Target} accent="amber" label="Active goals" value="3" note="1 milestone due this month" href="/goals" />
       </div>
 
@@ -116,17 +130,23 @@ export default async function Home() {
           </Card>
 
           <Card title="Upcoming bills" action={<CardLink href="/finances" accent="emerald">View all</CardLink>}>
-            <ul className="space-y-3">
-              {bills.map((b) => (
-                <li key={b.name} className="flex items-center justify-between gap-3">
-                  <div className="min-w-0">
-                    <p className="truncate text-sm font-medium">{b.name}</p>
-                    <p className="text-xs text-gray-500 dark:text-gray-400">Due {b.due}</p>
-                  </div>
-                  <span className="text-sm font-medium tabular-nums">{b.amount}</span>
-                </li>
-              ))}
-            </ul>
+            {!finance?.bills ? (
+              <p className="text-sm text-gray-500 dark:text-gray-400">{finance ? "Couldn't load bills." : "Connect PocketSmith to see bills."}</p>
+            ) : finance.bills.length === 0 ? (
+              <p className="text-sm text-gray-500 dark:text-gray-400">No bills in the next 2 weeks.</p>
+            ) : (
+              <ul className="space-y-3">
+                {finance.bills.map((b) => (
+                  <li key={b.id} className="flex items-center justify-between gap-3">
+                    <div className="min-w-0">
+                      <p className="truncate text-sm font-medium">{b.name}</p>
+                      <p className="text-xs text-gray-500 dark:text-gray-400">Due {formatDay(b.date, { weekday: "short", day: "numeric", month: "short" })}</p>
+                    </div>
+                    <span className="text-sm font-medium tabular-nums">{money(b.amount, { cents: true })}</span>
+                  </li>
+                ))}
+              </ul>
+            )}
           </Card>
         </div>
       </div>

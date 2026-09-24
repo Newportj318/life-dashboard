@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { ChevronLeft, ChevronRight, Clock, Dumbbell, Footprints, Route, Trophy } from "lucide-react";
-import { Card, PageHeader, StatCard } from "@/components/dashboard";
+import { Card, PageHeader, SetupNote, StatCard } from "@/components/dashboard";
+import { attempt } from "@/lib/attempt";
 import { BarChart, LineChart, Sparkline, TableView } from "@/components/charts";
 import { WeekPlanner } from "@/components/training/week-planner";
 import { disconnectStrava } from "@/app/actions/training";
@@ -23,15 +24,6 @@ import type { PlanEntry } from "@/lib/training-types";
 export const metadata: Metadata = { title: "Training · Life Dashboard" };
 
 const HISTORY_WEEKS = 12;
-
-// Each source fails on its own so one outage doesn't blank the page.
-async function attempt<T>(fn: () => Promise<T>): Promise<{ data: T; error: null } | { data: null; error: string }> {
-  try {
-    return { data: await fn(), error: null };
-  } catch (e) {
-    return { data: null, error: e instanceof Error ? e.message : "Something went wrong" };
-  }
-}
 
 const STRAVA_MESSAGES: Record<string, string> = {
   connected: "Strava connected.",
@@ -204,6 +196,7 @@ export default async function TrainingPage({ searchParams }: PageProps<"/trainin
                   {monthAgo && ` · ${latestWeight!.value - monthAgo.value >= 0 ? "+" : ""}${(latestWeight!.value - monthAgo.value).toFixed(1)} kg in 30 days`}
                 </span>
               </div>
+              <h3 className="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">Bodyweight (kg)</h3>
               <LineChart
                 label="Bodyweight over time"
                 unit=" kg"
@@ -246,7 +239,7 @@ export default async function TrainingPage({ searchParams }: PageProps<"/trainin
           ) : (
             <div className="grid grid-cols-1 gap-8 lg:grid-cols-5">
               <div className="lg:col-span-3">
-                <h3 className="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">Distance per week, last {HISTORY_WEEKS} weeks</h3>
+                <h3 className="mb-2 text-sm font-medium text-gray-600 dark:text-gray-400">Distance per week (km), last {HISTORY_WEEKS} weeks</h3>
                 <BarChart
                   label={`Distance per week, last ${HISTORY_WEEKS} weeks`}
                   unit=" km"
@@ -289,15 +282,6 @@ export default async function TrainingPage({ searchParams }: PageProps<"/trainin
         </Card>
       </div>
     </>
-  );
-}
-
-function SetupNote({ title, children }: { title: string; children: React.ReactNode }) {
-  return (
-    <div className="mb-6 rounded-lg border border-amber-200 dark:border-amber-900 bg-amber-50 dark:bg-amber-900/20 px-4 py-3 text-sm text-amber-900 dark:text-amber-200">
-      <p className="font-semibold">{title}</p>
-      <p className="mt-0.5">{children}</p>
-    </div>
   );
 }
 

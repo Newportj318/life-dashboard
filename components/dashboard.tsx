@@ -119,6 +119,16 @@ export function ProgressBar({ label, value, max, accent, suffix = "" }: {
   );
 }
 
+/** Amber notice for a missing key, table or connection. */
+export function SetupNote({ title, children }: { title: string; children: React.ReactNode }) {
+  return (
+    <div className="mb-6 rounded-lg border border-amber-200 dark:border-amber-900 bg-amber-50 dark:bg-amber-900/20 px-4 py-3 text-sm text-amber-900 dark:text-amber-200">
+      <p className="font-semibold">{title}</p>
+      <p className="mt-0.5">{children}</p>
+    </div>
+  );
+}
+
 export function SampleBadge() {
   return (
     <span className="rounded-full bg-gray-100 dark:bg-gray-800 px-2 py-0.5 text-xs font-medium text-gray-500 dark:text-gray-400">

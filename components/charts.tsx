@@ -7,6 +7,19 @@ import { useEffect, useRef, useState } from "react";
 
 export type Point = { key: string; label: string; value: number };
 
+// Each area's chart hue, validated against light and dark card surfaces.
+export type Tone = "purple" | "emerald";
+const TONES: Record<Tone, { fill: string; stroke: string }> = {
+  purple: { fill: "fill-purple-500", stroke: "stroke-purple-500" },
+  emerald: { fill: "fill-emerald-600", stroke: "stroke-emerald-600" },
+};
+
+export type Formatter = (v: number) => string;
+const defaultFormat = (unit: string): Formatter => (v) =>
+  `${v.toLocaleString("en-AU", { maximumFractionDigits: 1 })}${unit}`;
+// Axis ticks stay bare numbers; the chart heading names the unit.
+const defaultTick: Formatter = (v) => v.toLocaleString("en-AU", { maximumFractionDigits: 1 });
+
 const PAD = { top: 16, right: 16, bottom: 28, left: 40 };
 
 function useWidth<T extends HTMLElement>() {
@@ -22,41 +35,43 @@ function useWidth<T extends HTMLElement>() {
   return [ref, width] as const;
 }
 
-function niceTicks(max: number, count = 4) {
-  if (max <= 0) return [0, 1];
-  const raw = max / count;
+function niceStep(range: number, count = 4) {
+  const raw = Math.max(range, 1e-9) / count;
   const mag = 10 ** Math.floor(Math.log10(raw));
-  const step = [1, 2, 2.5, 5, 10].map((m) => m * mag).find((s) => s >= raw)!;
+  return [1, 2, 2.5, 5, 10].map((m) => m * mag).find((st) => st >= raw)!;
+}
+
+/** Round-numbered ticks covering [lo, hi]. */
+function ticksBetween(lo: number, hi: number, count = 4) {
+  const step = niceStep(hi - lo, count);
+  const start = Math.floor(lo / step) * step;
   const ticks = [];
-  for (let v = 0; v <= max + step * 0.001; v += step) ticks.push(Math.round(v * 100) / 100);
-  if (ticks.at(-1)! < max) ticks.push(Math.round((ticks.at(-1)! + step) * 100) / 100);
+  for (let v = start; v < hi + step * 0.999; v += step) ticks.push(Math.round(v * 1e6) / 1e6);
   return ticks;
 }
 
-const fmt = (v: number, unit: string) => `${v.toLocaleString("en-AU", { maximumFractionDigits: 1 })}${unit}`;
 
-function Tooltip({ x, y, width, point, unit }: { x: number; y: number; width: number; point: Point; unit: string }) {
+function Tooltip({ x, y, width, point, format }: { x: number; y: number; width: number; point: Point; format: Formatter }) {
   const left = Math.min(Math.max(x, 60), width - 60);
   return (
     <div
       className="pointer-events-none absolute z-10 -translate-x-1/2 -translate-y-full rounded-md border border-gray-200 dark:border-gray-700 bg-white dark:bg-gray-800 px-2.5 py-1.5 shadow-md"
       style={{ left, top: y - 8 }}
     >
-      <div className="text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap">{fmt(point.value, unit)}</div>
+      <div className="text-sm font-semibold text-gray-900 dark:text-gray-100 whitespace-nowrap">{format(point.value)}</div>
       <div className="text-xs text-gray-500 dark:text-gray-400 whitespace-nowrap">{point.label}</div>
     </div>
   );
 }
 
-function Grid({ ticks, y, width, unit }: { ticks: number[]; y: (v: number) => number; width: number; unit: string }) {
+function Grid({ ticks, y, width, tick }: { ticks: number[]; y: (v: number) => number; width: number; tick: Formatter }) {
   return (
     <g>
       {ticks.map((t) => (
         <g key={t}>
           <line x1={PAD.left} x2={width - PAD.right} y1={y(t)} y2={y(t)} className="stroke-gray-200 dark:stroke-gray-800" strokeWidth={1} />
           <text x={PAD.left - 8} y={y(t)} dy="0.32em" textAnchor="end" className="fill-gray-500 dark:fill-gray-400 text-[11px] tabular-nums">
-            {t.toLocaleString("en-AU")}
-            {t === ticks.at(-1) ? unit.trim() && ` ${unit.trim()}` : ""}
+            {tick(t)}
           </text>
         </g>
       ))}
@@ -64,7 +79,18 @@ function Grid({ ticks, y, width, unit }: { ticks: number[]; y: (v: number) => nu
   );
 }
 
-export function TableView({ data, unit, columns }: { data: Point[]; unit: string; columns: [string, string] }) {
+export function TableView({
+  data,
+  unit = "",
+  format,
+  columns,
+}: {
+  data: Point[];
+  unit?: string;
+  format?: Formatter;
+  columns: [string, string];
+}) {
+  const f = format ?? defaultFormat(unit);
   return (
     <details className="mt-3 text-sm">
       <summary className="cursor-pointer text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100">Show table</summary>
@@ -79,7 +105,7 @@ export function TableView({ data, unit, columns }: { data: Point[]; unit: string
           {data.map((d) => (
             <tr key={d.key}>
               <td className="py-1">{d.label}</td>
-              <td className="py-1 text-right tabular-nums">{fmt(d.value, unit)}</td>
+              <td className="py-1 text-right tabular-nums">{f(d.value)}</td>
             </tr>
           ))}
         </tbody>
@@ -88,11 +114,23 @@ export function TableView({ data, unit, columns }: { data: Point[]; unit: string
   );
 }
 
-export function BarChart({ data, unit = "", height = 200, label }: { data: Point[]; unit?: string; height?: number; label: string }) {
+type ChartProps = {
+  data: Point[];
+  label: string;
+  unit?: string;
+  height?: number;
+  tone?: Tone;
+  format?: Formatter; // tooltip, labels, table
+  tick?: Formatter; // axis ticks
+};
+
+export function BarChart({ data, unit = "", height = 200, label, tone = "purple", format, tick }: ChartProps) {
   const [ref, width] = useWidth<HTMLDivElement>();
   const [active, setActive] = useState<number | null>(null);
+  const f = format ?? defaultFormat(unit);
+  const tickFmt = tick ?? defaultTick;
 
-  const ticks = niceTicks(Math.max(0, ...data.map((d) => d.value)));
+  const ticks = ticksBetween(0, Math.max(1, ...data.map((d) => d.value)));
   const top = ticks.at(-1)!;
   const plotW = Math.max(0, width - PAD.left - PAD.right);
   const band = data.length ? plotW / data.length : 0;
@@ -105,7 +143,7 @@ export function BarChart({ data, unit = "", height = 200, label }: { data: Point
     <div ref={ref} className="relative w-full" style={{ height }}>
       {width > 0 && (
         <svg width={width} height={height} role="img" aria-label={label}>
-          <Grid ticks={ticks} y={y} width={width} unit={unit} />
+          <Grid ticks={ticks} y={y} width={width} tick={tickFmt} />
           {data.map((d, i) => {
             const cx = PAD.left + band * i + band / 2;
             const h = base - y(d.value);
@@ -119,7 +157,7 @@ export function BarChart({ data, unit = "", height = 200, label }: { data: Point
               : "";
             return (
               <g key={d.key}>
-                {path && <path d={path} className={`fill-purple-500 transition-opacity ${active !== null && active !== i ? "opacity-50" : ""}`} />}
+                {path && <path d={path} className={`${TONES[tone].fill} transition-opacity ${active !== null && active !== i ? "opacity-50" : ""}`} />}
                 {i % labelEvery === 0 && (
                   <text x={cx} y={height - 8} textAnchor="middle" className="fill-gray-500 dark:fill-gray-400 text-[11px]">
                     {d.label}
@@ -132,7 +170,7 @@ export function BarChart({ data, unit = "", height = 200, label }: { data: Point
                   height={base - PAD.top}
                   fill="transparent"
                   tabIndex={0}
-                  aria-label={`${d.label}: ${fmt(d.value, unit)}`}
+                  aria-label={`${d.label}: ${f(d.value)}`}
                   onPointerEnter={() => setActive(i)}
                   onPointerLeave={() => setActive(null)}
                   onFocus={() => setActive(i)}
@@ -151,27 +189,31 @@ export function BarChart({ data, unit = "", height = 200, label }: { data: Point
           y={y(data[active].value)}
           width={width}
           point={data[active]}
-          unit={unit}
+          format={f}
         />
       )}
     </div>
   );
 }
 
-export function LineChart({ data, unit = "", height = 200, label }: { data: Point[]; unit?: string; height?: number; label: string }) {
+export function LineChart({ data, unit = "", height = 200, label, tone = "purple", format, tick }: ChartProps) {
   const [ref, width] = useWidth<HTMLDivElement>();
   const [active, setActive] = useState<number | null>(null);
+  const f = format ?? defaultFormat(unit);
+  const tickFmt = tick ?? defaultTick;
 
   const values = data.map((d) => d.value);
   const rawMin = Math.min(...values);
   const rawMax = Math.max(...values);
-  const spread = Math.max(1, rawMax - rawMin);
-  // Weight changes are small relative to the total, so the axis starts near the data.
-  const lo = Math.floor(rawMin - spread * 0.2);
-  const ticksAbove = niceTicks(Math.ceil(rawMax + spread * 0.2) - lo).map((t) => t + lo);
+  const spread = Math.max(rawMax - rawMin, Math.abs(rawMax) * 0.01, 1e-6);
+  // Changes are small relative to the total (bodyweight, net worth), so the axis hugs the data.
+  const ticksAbove = ticksBetween(rawMin - spread * 0.15, rawMax + spread * 0.15);
+  const lo = ticksAbove[0];
   const hi = ticksAbove.at(-1)!;
 
-  const plotW = Math.max(0, width - PAD.left - PAD.right - 36); // room for the end label
+  const endLabel = f(data.at(-1)?.value ?? 0);
+  const endRoom = endLabel.length * 7 + 12;
+  const plotW = Math.max(0, width - PAD.left - PAD.right - endRoom); // room for the end label
   const x = (i: number) => PAD.left + (data.length > 1 ? (plotW * i) / (data.length - 1) : plotW / 2);
   const y = (v: number) => PAD.top + (height - PAD.top - PAD.bottom) * (1 - (v - lo) / (hi - lo));
   const line = data.map((d, i) => `${i ? "L" : "M"}${x(i)},${y(d.value)}`).join(" ");
@@ -191,9 +233,9 @@ export function LineChart({ data, unit = "", height = 200, label }: { data: Poin
     <div ref={ref} className="relative w-full" style={{ height }}>
       {width > 0 && (
         <svg width={width} height={height} role="img" aria-label={label}>
-          <Grid ticks={ticksAbove} y={y} width={width - 36} unit={unit} />
-          <path d={area} className="fill-purple-500" fillOpacity={0.1} />
-          <path d={line} className="stroke-purple-500" strokeWidth={2} fill="none" strokeLinejoin="round" strokeLinecap="round" />
+          <Grid ticks={ticksAbove} y={y} width={width - endRoom} tick={tickFmt} />
+          <path d={area} className={TONES[tone].fill} fillOpacity={0.1} />
+          <path d={line} className={TONES[tone].stroke} strokeWidth={2} fill="none" strokeLinejoin="round" strokeLinecap="round" />
           {[0, last].filter((v, i, a) => a.indexOf(v) === i).map((i) => (
             <text key={i} x={x(i)} y={height - 8} textAnchor={i === 0 ? "start" : "end"} className="fill-gray-500 dark:fill-gray-400 text-[11px]">
               {data[i].label}
@@ -203,9 +245,9 @@ export function LineChart({ data, unit = "", height = 200, label }: { data: Poin
             <line x1={x(active)} x2={x(active)} y1={PAD.top} y2={y(lo)} className="stroke-gray-400 dark:stroke-gray-500" strokeWidth={1} />
           )}
           {/* End marker with a surface ring, plus its direct label. */}
-          <circle cx={x(active ?? last)} cy={y(data[active ?? last].value)} r={4} className="fill-purple-500 stroke-white dark:stroke-gray-900" strokeWidth={2} />
+          <circle cx={x(active ?? last)} cy={y(data[active ?? last].value)} r={4} className={`${TONES[tone].fill} stroke-white dark:stroke-gray-900`} strokeWidth={2} />
           <text x={x(last) + 8} y={y(data[last].value)} dy="0.32em" className="fill-gray-900 dark:fill-gray-100 text-xs font-semibold">
-            {fmt(data[last].value, unit)}
+            {endLabel}
           </text>
           <rect
             x={PAD.left}
@@ -228,7 +270,7 @@ export function LineChart({ data, unit = "", height = 200, label }: { data: Poin
         </svg>
       )}
       {active !== null && width > 0 && (
-        <Tooltip x={x(active)} y={y(data[active].value)} width={width} point={data[active]} unit={unit} />
+        <Tooltip x={x(active)} y={y(data[active].value)} width={width} point={data[active]} format={f} />
       )}
     </div>
   );
