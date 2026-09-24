@@ -1,10 +1,11 @@
 import Link from "next/link";
-import { Dumbbell, Flame, Target, Wallet } from "lucide-react";
+import { Dumbbell, Flame, Target } from "lucide-react";
 import { Card, CardLink, PageHeader, ProgressBar, StatCard } from "@/components/dashboard";
+import { NetWorthCard } from "@/components/finance/net-worth-card";
 import { SupplementChecklist } from "@/components/nutrition/supplement-checklist";
 import { attempt } from "@/lib/attempt";
 import { addDays, formatDay, today } from "@/lib/dates";
-import { money, summariseAccounts, upcomingBills } from "@/lib/finance";
+import { money, recordAndLoadSnapshots, summariseAccounts, upcomingBills, yearBaselines } from "@/lib/finance";
 import { SLOTS, SLOT_LABELS, perServing, round, scale } from "@/lib/meal-types";
 import { dayTotals, loadDayKinds, loadLibrary, loadPlan, loadSupplements, loadTargets } from "@/lib/meals";
 import { STAGES, dueLabel, nextTask, viewGoal } from "@/lib/goal-types";
@@ -24,8 +25,12 @@ async function moneyGlance() {
   if (!pocketsmithConfigured()) return null;
   const day = today();
   const [accounts, events] = await Promise.all([attempt(getAccounts), attempt(() => getEvents(day, addDays(day, 13)))]);
+  const summary = accounts.data ? summariseAccounts(accounts.data) : null;
+  // Record today's net worth here too, so history builds from Home visits, not just Finances.
+  const history = summary ? await attempt(() => recordAndLoadSnapshots(day, summary.netWorth, summary.assets, summary.debts)) : null;
   return {
-    netWorth: accounts.data ? summariseAccounts(accounts.data).netWorth : null,
+    netWorth: summary?.netWorth ?? null,
+    baselines: history?.data ? yearBaselines(history.data, day) : [],
     bills: events.data ? upcomingBills(events.data).slice(0, 4) : null,
   };
 }
@@ -83,14 +88,7 @@ export default async function Home() {
           note={food?.target ? `Planned · P ${food.totals.protein}/${Math.round(food.target.protein)}g` : "Set targets in Nutrition"}
           href="/nutrition"
         />
-        <StatCard
-          icon={Wallet}
-          accent="emerald"
-          label="Net worth"
-          value={finance?.netWorth != null ? money(finance.netWorth) : "—"}
-          note={finance ? "From PocketSmith" : "Connect PocketSmith"}
-          href="/finances"
-        />
+        <NetWorthCard netWorth={finance?.netWorth ?? null} baselines={finance?.baselines ?? []} />
         <StatCard
           icon={Target}
           accent="amber"

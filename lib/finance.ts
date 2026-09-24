@@ -109,6 +109,29 @@ export function monthlySeries(snapshots: Snapshot[]) {
   return [...byMonth.values()];
 }
 
+export type YearBaseline = { year: number; day: string; value: number; fromJan1: boolean };
+
+/**
+ * Net worth at the start of each year, newest first: the last snapshot on or before 1 January.
+ * If the current year has none (history starts mid-year), the year's first snapshot stands in.
+ */
+export function yearBaselines(snapshots: Snapshot[], today: string): YearBaseline[] {
+  if (!snapshots.length) return [];
+  const thisYear = Number(today.slice(0, 4));
+  const firstYear = Number(snapshots[0].day.slice(0, 4));
+  const out: YearBaseline[] = [];
+  for (let year = thisYear; year >= firstYear; year--) {
+    const jan1 = `${year}-01-01`;
+    const base = [...snapshots].reverse().find((s) => s.day <= jan1);
+    if (base) out.push({ year, day: base.day, value: base.net_worth, fromJan1: true });
+    else if (year === thisYear) {
+      const first = snapshots.find((s) => s.day.startsWith(String(year)) && s.day < today);
+      if (first) out.push({ year, day: first.day, value: first.net_worth, fromJan1: false });
+    }
+  }
+  return out;
+}
+
 /** Net worth change since the last snapshot on or before `sinceDay`. */
 export function changeSince(snapshots: Snapshot[], sinceDay: string, current: number) {
   const base = [...snapshots].reverse().find((s) => s.day <= sinceDay);
