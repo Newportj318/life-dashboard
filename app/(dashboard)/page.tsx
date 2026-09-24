@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { Dumbbell, Flame, Target, Wallet } from "lucide-react";
 import { Card, CardLink, PageHeader, ProgressBar, StatCard } from "@/components/dashboard";
 import { SupplementChecklist } from "@/components/nutrition/supplement-checklist";
@@ -6,21 +7,10 @@ import { addDays, formatDay, today } from "@/lib/dates";
 import { money, summariseAccounts, upcomingBills } from "@/lib/finance";
 import { SLOTS, SLOT_LABELS, perServing, round, scale } from "@/lib/meal-types";
 import { dayTotals, loadDayKinds, loadLibrary, loadPlan, loadSupplements, loadTargets } from "@/lib/meals";
+import { STAGES, dueLabel, nextTask, viewGoal } from "@/lib/goal-types";
+import { loadGoals, loadProjects } from "@/lib/goals";
 import { getAccounts, getEvents, pocketsmithConfigured } from "@/lib/pocketsmith";
 import { createClient } from "@/lib/supabase/server";
-
-// Placeholder content until goals and projects are built (training, finances and meals are live).
-const goals = [
-  { name: "Bench 120kg", value: 105, max: 120 },
-  { name: "Emergency fund $10k", value: 6200, max: 10000 },
-  { name: "Run a sub-25 5km", value: 3, max: 5 },
-];
-
-const projects = [
-  { name: "4x4 build", stage: "Active", next: "Order suspension kit" },
-  { name: "Life dashboard", stage: "Active", next: "Set up login" },
-  { name: "Garage shelving", stage: "Planning", next: "Measure wall" },
-];
 
 async function todaysSession() {
   const supabase = await createClient();
@@ -64,8 +54,21 @@ async function foodToday() {
   return res.data;
 }
 
+async function goalsAndProjects() {
+  const supabase = await createClient();
+  const res = await attempt(() => Promise.all([loadGoals(supabase), loadProjects(supabase)]));
+  return res.data;
+}
+
 export default async function Home() {
-  const [session, finance, food] = await Promise.all([todaysSession(), moneyGlance(), foodToday()]);
+  const [session, finance, food, gp] = await Promise.all([todaysSession(), moneyGlance(), foodToday(), goalsAndProjects()]);
+  const day = today();
+  const currentGoals = (gp?.[0] ?? []).filter((g) => g.status === "current").map((g) => viewGoal(g, finance?.netWorth ?? null));
+  const nextDeadline = currentGoals.map((g) => g.deadline).filter((d): d is string => !!d && d >= day).sort()[0];
+  const activeProjects = (gp?.[1] ?? [])
+    .filter((p) => p.stage === "active" || p.stage === "planning")
+    .sort((a, b) => (a.stage === b.stage ? 0 : a.stage === "active" ? -1 : 1))
+    .slice(0, 5);
   return (
     <>
       <PageHeader title="Home" subtitle="Today at a glance" />
@@ -88,7 +91,14 @@ export default async function Home() {
           note={finance ? "From PocketSmith" : "Connect PocketSmith"}
           href="/finances"
         />
-        <StatCard icon={Target} accent="amber" label="Active goals" value="3" note="1 milestone due this month" href="/goals" />
+        <StatCard
+          icon={Target}
+          accent="amber"
+          label="Current goals"
+          value={gp ? String(currentGoals.length) : "—"}
+          note={!gp ? "Set up Goals" : nextDeadline ? `Next deadline: ${dueLabel(nextDeadline, day).text}` : "No deadlines set"}
+          href="/goals"
+        />
       </div>
 
       <div className="grid grid-cols-1 gap-6 xl:grid-cols-3 xl:gap-8">
@@ -135,29 +145,43 @@ export default async function Home() {
           </Card>
 
           <Card title="Active projects" action={<CardLink href="/projects" accent="sky">View all</CardLink>}>
-            <ul className="divide-y divide-gray-100 dark:divide-gray-800">
-              {projects.map((p) => (
-                <li key={p.name} className="flex items-center gap-4 py-3 first:pt-0 last:pb-0">
-                  <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-medium">{p.name}</p>
-                    <p className="truncate text-xs text-gray-500 dark:text-gray-400">Next: {p.next}</p>
-                  </div>
-                  <span className="shrink-0 rounded-full bg-sky-50 dark:bg-sky-900/20 px-2 py-0.5 text-xs font-medium text-sky-700 dark:text-sky-300">
-                    {p.stage}
-                  </span>
-                </li>
-              ))}
-            </ul>
+            {activeProjects.length === 0 ? (
+              <p className="text-sm text-gray-500 dark:text-gray-400">{gp ? "No active projects." : "Projects aren't set up yet."}</p>
+            ) : (
+              <ul className="divide-y divide-gray-100 dark:divide-gray-800">
+                {activeProjects.map((p) => {
+                  const next = nextTask(p);
+                  return (
+                    <li key={p.id} className="flex items-center gap-4 py-3 first:pt-0 last:pb-0">
+                      <div className="min-w-0 flex-1">
+                        <Link href={`/projects/${p.id}`} className="block truncate text-sm font-medium hover:underline">{p.title}</Link>
+                        <p className="truncate text-xs text-gray-500 dark:text-gray-400">{next ? `Next: ${next.title}` : "No open tasks"}</p>
+                      </div>
+                      <span className="shrink-0 rounded-full bg-sky-50 dark:bg-sky-900/20 px-2 py-0.5 text-xs font-medium text-sky-700 dark:text-sky-300">
+                        {STAGES.find((st) => st.key === p.stage)?.label}
+                      </span>
+                    </li>
+                  );
+                })}
+              </ul>
+            )}
           </Card>
         </div>
 
         <div className="space-y-6">
           <Card title="Goal progress" action={<CardLink href="/goals" accent="amber">View all</CardLink>}>
-            <div className="space-y-4">
-              {goals.map((g) => (
-                <ProgressBar key={g.name} label={g.name} value={g.value} max={g.max} accent="amber" />
-              ))}
-            </div>
+            {currentGoals.filter((g) => g.progress != null).length === 0 ? (
+              <p className="text-sm text-gray-500 dark:text-gray-400">{gp ? "No current goals with progress yet." : "Goals aren't set up yet."}</p>
+            ) : (
+              <div className="space-y-4">
+                {currentGoals
+                  .filter((g) => g.progress != null)
+                  .slice(0, 5)
+                  .map((g) => (
+                    <ProgressBar key={g.id} label={g.title} value={Math.round(g.progress! * 100)} max={100} accent="amber" />
+                  ))}
+              </div>
+            )}
           </Card>
 
           <Card title="Upcoming bills" action={<CardLink href="/finances" accent="emerald">View all</CardLink>}>

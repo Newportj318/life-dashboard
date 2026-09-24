@@ -1,21 +1,33 @@
 import type { Metadata } from "next";
-import { PageHeader, PlannedSections } from "@/components/dashboard";
+import { PageHeader, SetupNote } from "@/components/dashboard";
+import { GoalsView } from "@/components/goals/goals-view";
+import { attempt } from "@/lib/attempt";
+import { today } from "@/lib/dates";
+import { viewGoal } from "@/lib/goal-types";
+import { loadGoals, netWorthForGoals } from "@/lib/goals";
+import { createClient } from "@/lib/supabase/server";
 
 export const metadata: Metadata = { title: "Goals · Life Dashboard" };
 
-export default function GoalsPage() {
+export default async function GoalsPage() {
+  const supabase = await createClient();
+  const goals = await attempt(() => loadGoals(supabase));
+
   return (
     <>
-      <PageHeader title="Goals" subtitle="Current and future goals" />
-      <PlannedSections
-        accent="amber"
-        step="step 5"
-        sections={[
-          { title: "Current goals", detail: "Each with a target, deadline, milestones and a progress bar." },
-          { title: "Future goals", detail: "Ideas waiting to be promoted to current goals." },
-          { title: "Live-tracked goals", detail: "Goals that read real numbers from Hevy, Strava or PocketSmith." },
-        ]}
-      />
+      <PageHeader title="Goals" subtitle="What you're working towards, now and later" />
+      {goals.error !== null ? (
+        <SetupNote title="Goals tables not set up yet">
+          Run <code className="font-mono text-xs">supabase/migrations/20260925_goals_projects.sql</code> in the Supabase SQL Editor, then reload. ({goals.error})
+        </SetupNote>
+      ) : (
+        <GoalsView goals={await withNetWorth(goals.data)} today={today()} />
+      )}
     </>
   );
+}
+
+async function withNetWorth(goals: Awaited<ReturnType<typeof loadGoals>>) {
+  const netWorth = await netWorthForGoals(goals);
+  return goals.map((g) => viewGoal(g, netWorth));
 }
