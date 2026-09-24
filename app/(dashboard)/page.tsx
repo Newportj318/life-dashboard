@@ -2,6 +2,7 @@ import Link from "next/link";
 import { Dumbbell, Flame, Target } from "lucide-react";
 import { Card, CardLink, PageHeader, ProgressBar, StatCard } from "@/components/dashboard";
 import { NetWorthCard } from "@/components/finance/net-worth-card";
+import { Greeting } from "@/components/greeting";
 import { SupplementChecklist } from "@/components/nutrition/supplement-checklist";
 import { attempt } from "@/lib/attempt";
 import { addDays, formatDay, today } from "@/lib/dates";
@@ -12,6 +13,8 @@ import { STAGES, dueLabel, nextTask, viewGoal } from "@/lib/goal-types";
 import { loadGoals, loadProjects } from "@/lib/goals";
 import { getAccounts, getEvents, pocketsmithConfigured } from "@/lib/pocketsmith";
 import { createClient } from "@/lib/supabase/server";
+
+const DISPLAY_NAME = "Jared";
 
 async function todaysSession() {
   const supabase = await createClient();
@@ -76,9 +79,9 @@ export default async function Home() {
     .slice(0, 5);
   return (
     <>
-      <PageHeader title="Home" subtitle="Today at a glance" />
+      <PageHeader title={<Greeting name={DISPLAY_NAME} />} subtitle="Here's your day at a glance" />
 
-      <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="stagger mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard icon={Dumbbell} accent="purple" label="Today's session" value={session.value} note={session.note} href="/training" />
         <StatCard
           icon={Flame}
@@ -146,7 +149,7 @@ export default async function Home() {
             {activeProjects.length === 0 ? (
               <p className="text-sm text-gray-500 dark:text-gray-400">{gp ? "No active projects." : "Projects aren't set up yet."}</p>
             ) : (
-              <ul className="divide-y divide-gray-100 dark:divide-gray-800">
+              <ul className="divide-y divide-gray-100 dark:divide-white/[0.06]">
                 {activeProjects.map((p) => {
                   const next = nextTask(p);
                   return (

@@ -9,6 +9,8 @@ import { usePathname } from "next/navigation";
 import { useState, useSyncExternalStore } from "react";
 import { ChevronsRight, LogOut, Menu, X } from "lucide-react";
 import { signOut } from "@/app/actions/auth";
+import { AppBackground } from "@/components/app-background";
+import { Logo } from "@/components/logo";
 import { accents } from "@/lib/accents";
 import { accountNav, isActive, mainNav, type NavItem } from "@/lib/nav";
 
@@ -34,11 +36,18 @@ function readCollapse() {
 
 const noopSubscribe = () => () => {};
 
+function areaFor(pathname: string) {
+  const first = pathname.split("/")[1];
+  return first || "home";
+}
+
 export function DashboardShell({ children }: { children: React.ReactNode }) {
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const pathname = usePathname();
 
   return (
-    <div className="flex min-h-screen w-full bg-gray-50 dark:bg-gray-950 text-gray-900 dark:text-gray-100">
+    <div className="flex min-h-screen w-full text-gray-900 dark:text-gray-100">
+      <AppBackground area={areaFor(pathname)} />
       <DesktopSidebar />
 
       {/* Phone drawer */}
@@ -49,7 +58,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
             className="absolute inset-0 bg-black/40"
             onClick={() => setDrawerOpen(false)}
           />
-          <nav className="relative flex h-full w-72 max-w-[85vw] flex-col border-r border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-2 shadow-xl">
+          <nav className="relative flex h-full w-72 max-w-[85vw] flex-col border-r border-gray-200 dark:border-white/[0.08] bg-white/95 dark:bg-[#0a0d16]/95 p-2 shadow-xl backdrop-blur-xl">
             <div className="flex items-start justify-between">
               <div className="min-w-0 flex-1">
                 <TitleSection open />
@@ -57,7 +66,7 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
               <button
                 aria-label="Close menu"
                 onClick={() => setDrawerOpen(false)}
-                className="m-2 rounded-md p-2 text-gray-500 hover:bg-gray-50 dark:hover:bg-gray-800"
+                className="m-2 rounded-md p-2 text-gray-500 hover:bg-gray-900/[0.04] dark:hover:bg-white/[0.05]"
               >
                 <X className="h-4 w-4" />
               </button>
@@ -69,19 +78,19 @@ export function DashboardShell({ children }: { children: React.ReactNode }) {
 
       <div className="flex min-w-0 flex-1 flex-col">
         {/* Phone top bar */}
-        <div className="sticky top-0 z-30 flex items-center gap-3 border-b border-gray-200 dark:border-gray-800 bg-white/90 dark:bg-gray-900/90 px-4 py-3 backdrop-blur md:hidden">
+        <div className="sticky top-0 z-30 flex items-center gap-3 border-b border-gray-200/80 dark:border-white/[0.06] bg-white/70 dark:bg-[#05070d]/70 px-4 py-3 backdrop-blur-xl md:hidden">
           <button
             aria-label="Open menu"
             onClick={() => setDrawerOpen(true)}
-            className="rounded-md p-2 -ml-2 text-gray-600 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
+            className="rounded-md p-2 -ml-2 text-gray-600 dark:text-gray-300 hover:bg-gray-900/[0.04] dark:hover:bg-white/[0.05]"
           >
             <Menu className="h-5 w-5" />
           </button>
-          <Logo small />
-          <span className="text-sm font-semibold">Life Dashboard</span>
+          <Logo size={32} />
+          <span className="font-display text-sm font-semibold tracking-tight">Life Dashboard</span>
         </div>
 
-        <main className="flex-1 overflow-auto p-4 sm:p-6">{children}</main>
+        <main className="flex-1 overflow-auto p-4 sm:p-6 lg:p-8">{children}</main>
       </div>
     </div>
   );
@@ -102,14 +111,14 @@ function DesktopSidebar() {
     <nav
       className={`sticky top-0 hidden h-screen shrink-0 flex-col border-r transition-all duration-300 ease-in-out md:flex ${
         open ? "w-64" : "w-16"
-      } border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-2 shadow-sm`}
+      } border-gray-200/80 dark:border-white/[0.06] bg-white/60 dark:bg-white/[0.02] p-2 backdrop-blur-xl`}
     >
       <TitleSection open={open} />
       <NavLinks open={open} />
       <button
         onClick={toggle}
         aria-label={open ? "Collapse sidebar" : "Expand sidebar"}
-        className="-mx-2 -mb-2 mt-auto border-t border-gray-200 dark:border-gray-800 transition-colors hover:bg-gray-50 dark:hover:bg-gray-800"
+        className="-mx-2 -mb-2 mt-auto border-t border-gray-200/80 dark:border-white/[0.06] transition-colors hover:bg-gray-900/[0.04] dark:hover:bg-white/[0.05]"
       >
         <div className="flex items-center p-3">
           <div className="grid size-10 place-content-center">
@@ -145,7 +154,7 @@ function NavLinks({ open, onNavigate }: { open: boolean; onNavigate?: () => void
         ))}
       </div>
 
-      <div className="space-y-1 border-t border-gray-200 dark:border-gray-800 pt-4">
+      <div className="space-y-1 border-t border-gray-200/80 dark:border-white/[0.06] pt-4">
         {open && (
           <div className="px-3 py-2 text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">
             Account
@@ -164,7 +173,7 @@ function NavLinks({ open, onNavigate }: { open: boolean; onNavigate?: () => void
           <button
             type="submit"
             title={open ? undefined : "Sign out"}
-            className="relative flex h-11 w-full items-center rounded-md text-gray-600 dark:text-gray-400 transition-all duration-200 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-200"
+            className="relative flex h-11 w-full items-center rounded-md text-gray-600 dark:text-gray-400 transition-all duration-200 hover:bg-gray-900/[0.04] dark:hover:bg-white/[0.05] hover:text-gray-900 dark:hover:text-gray-200"
           >
             <div className="grid h-full w-12 shrink-0 place-content-center">
               <LogOut className="h-4 w-4" />
@@ -197,8 +206,8 @@ function Option({
       aria-current={selected ? "page" : undefined}
       className={`relative flex h-11 w-full items-center rounded-md transition-all duration-200 ${
         selected
-          ? `${accents[item.accent].navSelected} shadow-sm`
-          : "text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800 hover:text-gray-900 dark:hover:text-gray-200"
+          ? accents[item.accent].navSelected
+          : "text-gray-600 dark:text-gray-400 hover:bg-gray-900/[0.04] dark:hover:bg-white/[0.05] hover:text-gray-900 dark:hover:text-gray-200"
       }`}
     >
       <div className="grid h-full w-12 shrink-0 place-content-center">
@@ -218,33 +227,18 @@ function TitleSection({ open }: { open: boolean }) {
   );
 
   return (
-    <div className="mb-6 border-b border-gray-200 dark:border-gray-800 pb-4">
+    <div className="mb-6 border-b border-gray-200/80 dark:border-white/[0.06] pb-4">
       <div className="flex items-center gap-3 rounded-md p-2">
         <Logo />
         {open && (
           <div className="min-w-0">
-            <span className="block truncate text-sm font-semibold text-gray-900 dark:text-gray-100">
+            <span className="block truncate font-display text-sm font-semibold tracking-tight text-gray-900 dark:text-gray-100">
               Life Dashboard
             </span>
             <span className="block h-4 text-xs text-gray-500 dark:text-gray-400">{today}</span>
           </div>
         )}
       </div>
-    </div>
-  );
-}
-
-function Logo({ small = false }: { small?: boolean }) {
-  return (
-    <div
-      className={`grid shrink-0 place-content-center rounded-lg bg-gradient-to-br from-blue-500 to-blue-600 shadow-sm ${
-        small ? "size-8" : "size-10"
-      }`}
-    >
-      <svg width={small ? 16 : 20} viewBox="0 0 50 39" fill="none" className="fill-white" aria-hidden>
-        <path d="M16.4992 2H37.5808L22.0816 24.9729H1L16.4992 2Z" />
-        <path d="M17.4224 27.102L11.4192 36H33.5008L49 13.0271H32.7024L23.2064 27.102H17.4224Z" />
-      </svg>
     </div>
   );
 }

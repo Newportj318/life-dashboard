@@ -28,7 +28,7 @@ export function GoalsView({ goals, today }: { goals: GoalView[]; today: string }
               className={`rounded-full border px-3 py-1 text-sm ${
                 area === a.key
                   ? "border-amber-500 bg-amber-50 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300"
-                  : "border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800"
+                  : "border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-white/[0.06]"
               }`}
             >
               {a.label}
@@ -61,7 +61,7 @@ export function GoalsView({ goals, today }: { goals: GoalView[]; today: string }
           {future.length > 0 && (
             <section>
               <h2 className="mb-3 text-sm font-semibold uppercase tracking-wide text-gray-500 dark:text-gray-400">Future ({future.length})</h2>
-              <ul className="divide-y divide-gray-100 rounded-xl border border-gray-200 bg-white shadow-sm dark:divide-gray-800 dark:border-gray-800 dark:bg-gray-900">
+              <ul className="surface divide-y divide-gray-100 dark:divide-white/[0.06]">
                 {future.map((g) => <FutureRow key={g.id} goal={g} />)}
               </ul>
             </section>
@@ -107,7 +107,7 @@ function GoalCard({ goal: g, today }: { goal: GoalView; today: string }) {
   const due = g.deadline ? dueLabel(g.deadline, today) : null;
 
   return (
-    <article className={`flex flex-col rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-5 shadow-sm ${pending ? "opacity-70" : ""}`}>
+    <article className={`flex flex-col surface p-5 ${pending ? "opacity-70" : ""}`}>
       <div className="flex items-start justify-between gap-3">
         <div className="min-w-0">
           <p className="text-xs font-medium uppercase tracking-wide text-amber-700 dark:text-amber-400">{areaLabel(g.area)}</p>
@@ -133,8 +133,8 @@ function GoalCard({ goal: g, today }: { goal: GoalView; today: string }) {
             </span>
             <span className="font-semibold">{pct}%</span>
           </div>
-          <div className="h-2 w-full rounded-full bg-gray-200 dark:bg-gray-700" role="img" aria-label={`${pct}% of the way`}>
-            <div className="h-2 rounded-full bg-amber-500" style={{ width: `${pct}%` }} />
+          <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-white/10" role="img" aria-label={`${pct}% of the way`}>
+            <div className="bar-fill h-2 rounded-full bg-amber-500" style={{ width: `${pct}%` }} />
           </div>
         </div>
       )}
@@ -154,7 +154,7 @@ function GoalCard({ goal: g, today }: { goal: GoalView; today: string }) {
       </div>
 
       {g.milestones.length > 0 && (
-        <ul className="mt-4 space-y-1 border-t border-gray-100 pt-3 dark:border-gray-800">
+        <ul className="mt-4 space-y-1 border-t border-gray-100 pt-3 dark:border-white/[0.08]">
           {g.milestones.map((m) => {
             const isDone = milestoneDone(m, g, g.value);
             const auto = m.value != null && g.tracking !== "milestones";
@@ -163,7 +163,7 @@ function GoalCard({ goal: g, today }: { goal: GoalView; today: string }) {
                 <button
                   disabled={auto || pending}
                   onClick={() => m.id && run(() => toggleMilestone(m.id!, !m.done))}
-                  className="flex w-full items-center gap-2 rounded px-1 py-1 text-left text-sm enabled:hover:bg-gray-50 dark:enabled:hover:bg-gray-800"
+                  className="flex w-full items-center gap-2 rounded px-1 py-1 text-left text-sm enabled:hover:bg-gray-50 dark:enabled:hover:bg-white/[0.06]"
                   title={auto ? "Ticks itself when the goal reaches this value" : undefined}
                 >
                   {isDone ? <CircleCheck className="h-4 w-4 shrink-0 text-green-500" /> : <Circle className="h-4 w-4 shrink-0 text-gray-400" />}

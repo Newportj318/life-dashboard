@@ -1,5 +1,17 @@
 # Design System
 
+## Current look: dark premium (v2)
+- **Theme:** dark by default (`#05070d` base); light mode available via the toggle and remembered.
+- **Background** (`components/app-background.tsx`, `.app-bg` in `app/globals.css`): an aurora glow tinted by the current area (purple on Training, emerald on Finances, …), a dot grid fading from the top, and fine film grain. The glow drifts slowly.
+- **Surfaces:** every card uses `.surface`, frosted glass (translucent fill, 1px light border, top-edge highlight, backdrop blur). `.surface-hover` lifts 2px on hover. Dialogs stay solid.
+- **Type:** Space Grotesk (`font-display`) for headings and big numbers; Inter for UI text.
+- **Numbers:** stat values count up on load (`components/count-up.tsx`) and glow softly in their area colour (`.stat-glow` + `--glow`).
+- **Motion:** cards rise in (`.rise`, `.stagger`), progress bars fill (`.bar-fill`). All disabled under "reduce motion".
+- **Accents** (`lib/accents.ts`): glassy chips (`*-500/15` + ring) and a glowing inset bar on the selected sidebar item.
+- **Logo:** `components/logo.tsx`, three rising bars on an indigo→fuchsia tile.
+
+The sections below are the original v1 spec; layout, grids and area colours still apply.
+
 Based on the 21st.dev "dashboard-with-collapsible-sidebar" component. It will be adapted for this app rather than copied verbatim.
 
 ## Layout

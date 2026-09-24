@@ -3,17 +3,18 @@
 import Link from "next/link";
 import { User, type LucideIcon } from "lucide-react";
 import { accents, type Accent } from "@/lib/accents";
+import { CountUp } from "@/components/count-up";
 import { ThemeToggle } from "@/components/theme-toggle";
 
 /** Square-ish button for week navigation and similar toolbars. */
 export const navBtn =
-  "inline-flex h-9 items-center gap-1 rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800";
+  "inline-flex h-9 items-center gap-1 rounded-lg border border-gray-200 dark:border-white/[0.08] bg-white dark:bg-white/[0.03] px-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/[0.06]";
 
-export function PageHeader({ title, subtitle }: { title: string; subtitle?: string }) {
+export function PageHeader({ title, subtitle }: { title: React.ReactNode; subtitle?: string }) {
   return (
     <div className="mb-8 flex items-start justify-between gap-4">
       <div className="min-w-0">
-        <h1 className="text-2xl sm:text-3xl font-bold text-gray-900 dark:text-gray-100">{title}</h1>
+        <h1 className="font-display text-2xl font-semibold tracking-tight text-gray-900 sm:text-3xl dark:text-white">{title}</h1>
         {subtitle && <p className="mt-1 text-gray-600 dark:text-gray-400">{subtitle}</p>}
       </div>
       <div className="flex shrink-0 items-center gap-3">
@@ -21,7 +22,7 @@ export function PageHeader({ title, subtitle }: { title: string; subtitle?: stri
         <Link
           href="/settings"
           aria-label="Account"
-          className="flex h-10 w-10 items-center justify-center rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-gray-600 dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
+          className="flex h-10 w-10 items-center justify-center rounded-xl border border-gray-200 dark:border-white/[0.08] bg-white/70 dark:bg-white/[0.04] text-gray-600 backdrop-blur dark:text-gray-400 hover:text-gray-900 dark:hover:text-gray-100 transition-colors"
         >
           <User className="h-4 w-4" />
         </Link>
@@ -43,11 +44,11 @@ export function Card({
 }) {
   return (
     <section
-      className={`rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-sm ${className}`}
+      className={`surface rise p-6 ${className}`}
     >
       {(title || action) && (
         <div className="mb-5 flex items-center justify-between gap-3">
-          {title && <h2 className="text-lg font-semibold text-gray-900 dark:text-gray-100">{title}</h2>}
+          {title && <h2 className="font-display text-lg font-semibold tracking-tight text-gray-900 dark:text-white">{title}</h2>}
           {action}
         </div>
       )}
@@ -84,13 +85,14 @@ export function StatCard({
       <div className={`mb-4 inline-flex rounded-lg p-2 ${accents[accent].chip}`}>
         <Icon className={`h-5 w-5 ${accents[accent].icon}`} />
       </div>
-      <h3 className="mb-1 font-medium text-gray-600 dark:text-gray-400">{label}</h3>
-      <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{value}</p>
+      <h3 className="mb-1 text-sm font-medium text-gray-600 dark:text-gray-400">{label}</h3>
+      <p className="stat-glow font-display text-2xl font-semibold tracking-tight text-gray-900 dark:text-white" style={{ "--glow": accents[accent].hex } as React.CSSProperties}>
+        <CountUp text={value} />
+      </p>
       {note && <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{note}</p>}
     </>
   );
-  const cls =
-    "block rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-sm hover:shadow-md transition-shadow";
+  const cls = "block surface surface-hover p-6";
   return href ? (
     <Link href={href} className={cls}>
       {body}
@@ -116,8 +118,8 @@ export function ProgressBar({ label, value, max, accent, suffix = "" }: {
           {pct}%{suffix}
         </span>
       </div>
-      <div className="h-2 w-full rounded-full bg-gray-200 dark:bg-gray-700">
-        <div className={`h-2 rounded-full ${accents[accent].bar}`} style={{ width: `${pct}%` }} />
+      <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-white/10">
+        <div className={`bar-fill h-2 rounded-full ${accents[accent].bar}`} style={{ width: `${pct}%` }} />
       </div>
     </div>
   );
@@ -160,7 +162,7 @@ export function PlannedSections({
         {sections.map((s) => (
           <Card key={s.title} title={s.title}>
             <p className="text-sm text-gray-600 dark:text-gray-400">{s.detail}</p>
-            <div className="mt-5 h-24 rounded-lg border border-dashed border-gray-200 dark:border-gray-800" />
+            <div className="mt-5 h-24 rounded-lg border border-dashed border-gray-200 dark:border-white/[0.08]" />
           </Card>
         ))}
       </div>

@@ -29,7 +29,7 @@ export function MealLibrary({ meals }: { meals: LibraryMeal[] }) {
               className={`rounded-full border px-3 py-1 text-sm ${
                 slot === s
                   ? "border-orange-500 bg-orange-50 text-orange-700 dark:bg-orange-900/30 dark:text-orange-300"
-                  : "border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800"
+                  : "border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-white/[0.06]"
               }`}
             >
               {s === "all" ? "All" : SLOT_LABELS[s]}
@@ -57,7 +57,7 @@ export function MealLibrary({ meals }: { meals: LibraryMeal[] }) {
             const r = round(m.perServing);
             return (
               <li key={m.id}>
-                <Link href={`/meals/library/${m.id}`} className="block h-full rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-5 shadow-sm transition-shadow hover:shadow-md">
+                <Link href={`/meals/library/${m.id}`} className="block h-full surface surface-hover p-5">
                   <p className="font-semibold">{m.name}</p>
                   <p className="mt-1 text-xs text-gray-500 dark:text-gray-400">
                     {m.slots.length ? m.slots.map((s) => SLOT_LABELS[s]).join(", ") : "Any meal"} · makes {m.servings} · {m.ingredientCount ? `${m.ingredientCount} ingredients` : "typed totals"}

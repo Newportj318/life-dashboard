@@ -5,6 +5,7 @@ import Link from "next/link";
 import { TrendingDown, TrendingUp, Wallet } from "lucide-react";
 import { accents } from "@/lib/accents";
 import { money } from "@/lib/format";
+import { CountUp } from "@/components/count-up";
 
 export type Baseline = { year: number; day: string; value: number; fromJan1: boolean };
 
@@ -22,14 +23,16 @@ export function NetWorthCard({ netWorth, baselines }: { netWorth: number | null;
   const since = base ? (base.fromJan1 ? `1 Jan ${base.year}` : dayLabel(base.day)) : null;
 
   return (
-    <div className="relative rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-sm hover:shadow-md transition-shadow">
+    <div className="relative surface surface-hover p-6">
       {/* Whole card links to Finances; the year picker sits above the link. */}
-      <Link href="/finances" className="absolute inset-0 rounded-xl" aria-label="Open Finances" />
+      <Link href="/finances" className="absolute inset-0 rounded-2xl" aria-label="Open Finances" />
       <div className={`mb-4 inline-flex rounded-lg p-2 ${accents.emerald.chip}`}>
         <Wallet className={`h-5 w-5 ${accents.emerald.icon}`} />
       </div>
-      <h3 className="mb-1 font-medium text-gray-600 dark:text-gray-400">Net worth</h3>
-      <p className="text-2xl font-bold text-gray-900 dark:text-gray-100">{netWorth != null ? money(netWorth) : "—"}</p>
+      <h3 className="mb-1 text-sm font-medium text-gray-600 dark:text-gray-400">Net worth</h3>
+      <p className="stat-glow font-display text-2xl font-semibold tracking-tight text-gray-900 dark:text-white" style={{ "--glow": accents.emerald.hex } as React.CSSProperties}>
+        {netWorth != null ? <CountUp text={money(netWorth)} /> : "—"}
+      </p>
 
       {pct != null && change != null ? (
         <div className="mt-1 text-sm">

@@ -68,7 +68,7 @@ export function GoalEditor({ goal, netWorth }: { goal?: Goal; netWorth: number |
 
   return (
     <div className="max-w-3xl space-y-6">
-      <section className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-sm">
+      <section className="surface p-6">
         <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
           <Field label="Goal" className="sm:col-span-2">
             <input value={title} onChange={(e) => setTitle(e.target.value)} placeholder="e.g. Net worth $600K" className={inputCls} />
@@ -92,7 +92,7 @@ export function GoalEditor({ goal, netWorth }: { goal?: Goal; netWorth: number |
         </div>
       </section>
 
-      <section className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-sm">
+      <section className="surface p-6">
         <h2 className="mb-3 text-lg font-semibold">How progress is measured</h2>
         <div className="mb-4 flex flex-wrap gap-2" role="radiogroup" aria-label="Tracking">
           {(Object.keys(TRACKING_LABELS) as Tracking[]).map((t) => (
@@ -104,7 +104,7 @@ export function GoalEditor({ goal, netWorth }: { goal?: Goal; netWorth: number |
               className={`rounded-full border px-3 py-1 text-sm ${
                 tracking === t
                   ? "border-amber-500 bg-amber-50 text-amber-800 dark:bg-amber-900/30 dark:text-amber-300"
-                  : "border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-gray-800"
+                  : "border-gray-200 text-gray-600 hover:bg-gray-50 dark:border-gray-700 dark:text-gray-400 dark:hover:bg-white/[0.06]"
               }`}
             >
               {TRACKING_LABELS[t]}
@@ -140,7 +140,7 @@ export function GoalEditor({ goal, netWorth }: { goal?: Goal; netWorth: number |
         {numeric && <p className="mt-2 text-xs text-gray-500 dark:text-gray-400">Progress runs from the starting value to the target, so a goal to lose weight counts down.</p>}
       </section>
 
-      <section className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-sm">
+      <section className="surface p-6">
         <h2 className="mb-1 text-lg font-semibold">Milestones</h2>
         <p className="mb-4 text-sm text-gray-500 dark:text-gray-400">
           {tracking === "milestones" ? "Progress is how many of these are done." : "Optional checkpoints. Give one a value and it ticks itself when you get there."}
@@ -169,7 +169,7 @@ export function GoalEditor({ goal, netWorth }: { goal?: Goal; netWorth: number |
         </button>
       </section>
 
-      <section className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-sm">
+      <section className="surface p-6">
         <Field label="Notes (why this matters, how you'll get there)">
           <textarea value={notes} onChange={(e) => setNotes(e.target.value)} rows={4} className={inputCls} />
         </Field>

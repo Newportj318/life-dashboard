@@ -83,7 +83,7 @@ export default async function TrainingPage({ searchParams }: PageProps<"/trainin
 
   const weekLabel = `${formatDay(days[0], { day: "numeric", month: "short" })} – ${formatDay(days[6], { day: "numeric", month: "short", year: "numeric" })}`;
   const navBtn =
-    "inline-flex h-9 items-center gap-1 rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800";
+    "inline-flex h-9 items-center gap-1 rounded-lg border border-gray-200 dark:border-white/[0.08] bg-white dark:bg-white/[0.03] px-2.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/[0.06]";
 
   const latestWeight = weight.at(-1);
   const monthAgo = latestWeight && [...weight].reverse().find((w) => w.day <= addDays(latestWeight.day, -30));
@@ -93,7 +93,7 @@ export default async function TrainingPage({ searchParams }: PageProps<"/trainin
       <PageHeader title="Training" subtitle="Weekly plan, strength, cardio and body" />
 
       {stravaMessage && (
-        <p role="status" className="mb-6 rounded-lg border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 px-4 py-3 text-sm">
+        <p role="status" className="mb-6 rounded-lg border border-gray-200 dark:border-white/[0.08] bg-white dark:bg-white/[0.03] px-4 py-3 text-sm">
           {stravaMessage}
         </p>
       )}
@@ -125,7 +125,7 @@ export default async function TrainingPage({ searchParams }: PageProps<"/trainin
         <h2 className="ml-1 text-base font-semibold">{weekLabel}</h2>
       </div>
 
-      <div className="mb-6 grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
+      <div className="stagger mb-6 grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
         <StatCard icon={Trophy} accent="purple" label="Plan completed" value={`${totals.completed} / ${totals.planned}`} note="Planned sessions done or moved" />
         <StatCard icon={Dumbbell} accent="purple" label="Volume" value={`${Math.round(totals.volumeKg).toLocaleString("en-AU")} kg`} note="Working sets, from Hevy" />
         <StatCard icon={Route} accent="purple" label="Distance" value={`${totals.km.toFixed(1)} km`} note={stravaLinked ? "From Strava" : "Connect Strava to track"} />
@@ -157,7 +157,7 @@ export default async function TrainingPage({ searchParams }: PageProps<"/trainin
                       <th className="pb-2 pl-4 font-medium">Weekly trend</th>
                     </tr>
                   </thead>
-                  <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                  <tbody className="divide-y divide-gray-100 dark:divide-white/[0.06]">
                     {lifts.map((l) => (
                       <tr key={l.id}>
                         <td className="max-w-48 py-2.5 pr-3">
@@ -256,7 +256,7 @@ export default async function TrainingPage({ searchParams }: PageProps<"/trainin
                 {recentActivities.length === 0 ? (
                   <Empty>No activities in the last {HISTORY_WEEKS} weeks.</Empty>
                 ) : (
-                  <ul className="divide-y divide-gray-100 dark:divide-gray-800">
+                  <ul className="divide-y divide-gray-100 dark:divide-white/[0.06]">
                     {recentActivities.map((a) => (
                       <li key={a.id} className="flex items-center justify-between gap-3 py-2.5">
                         <div className="min-w-0">

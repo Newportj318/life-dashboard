@@ -7,9 +7,10 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
+  --font-sans: var(--font-inter);
   --font-mono: var(--font-geist-mono);
-  --font-heading: var(--font-sans);
+  --font-heading: var(--font-space-grotesk);
+  --font-display: var(--font-space-grotesk);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -127,4 +128,121 @@
   html {
     @apply font-sans;
   }
+}
+
+/* ---------- Life Dashboard look: glass surfaces, ambient background, gentle motion ---------- */
+
+@layer components {
+  /* Cards. Light: frosted white. Dark: faint glass with a highlight along the top edge. */
+  .surface {
+    border-radius: 1rem;
+    border: 1px solid rgb(15 23 42 / 0.07);
+    background: rgb(255 255 255 / 0.72);
+    backdrop-filter: blur(14px) saturate(140%);
+    -webkit-backdrop-filter: blur(14px) saturate(140%);
+    box-shadow: 0 1px 2px rgb(15 23 42 / 0.04), 0 12px 32px -18px rgb(15 23 42 / 0.18);
+  }
+  .dark .surface {
+    border-color: rgb(255 255 255 / 0.075);
+    background: linear-gradient(180deg, rgb(255 255 255 / 0.05), rgb(255 255 255 / 0.018));
+    box-shadow: inset 0 1px 0 rgb(255 255 255 / 0.06), 0 18px 40px -24px rgb(0 0 0 / 0.8);
+  }
+  .surface-hover {
+    transition: transform 200ms ease, border-color 200ms ease, box-shadow 200ms ease;
+  }
+  .surface-hover:hover {
+    transform: translateY(-2px);
+    border-color: rgb(15 23 42 / 0.12);
+  }
+  .dark .surface-hover:hover {
+    border-color: rgb(255 255 255 / 0.14);
+  }
+
+  /* Big numbers glow softly in their area's colour (set --glow on the element). */
+  .dark .stat-glow {
+    text-shadow: 0 0 24px color-mix(in oklab, var(--glow, #818cf8) 70%, transparent), 0 0 2px color-mix(in oklab, var(--glow, #818cf8) 30%, transparent);
+  }
+
+  /* Cards rise in on load; grids marked .stagger bring their children in one after another. */
+  .rise {
+    animation: rise 520ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+  .stagger > * {
+    animation: rise 520ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+  }
+  .stagger > *:nth-child(2) { animation-delay: 60ms; }
+  .stagger > *:nth-child(3) { animation-delay: 120ms; }
+  .stagger > *:nth-child(4) { animation-delay: 180ms; }
+  .stagger > *:nth-child(5) { animation-delay: 240ms; }
+  .stagger > *:nth-child(6) { animation-delay: 300ms; }
+  .stagger > *:nth-child(n + 7) { animation-delay: 340ms; }
+
+  /* Progress bars fill from the left on load. */
+  .bar-fill {
+    transform-origin: left center;
+    animation: grow 900ms cubic-bezier(0.2, 0.7, 0.2, 1) 150ms both;
+  }
+}
+
+@keyframes rise {
+  from { opacity: 0; transform: translateY(8px); }
+  to { opacity: 1; transform: none; }
+}
+@keyframes grow {
+  from { transform: scaleX(0); }
+  to { transform: scaleX(1); }
+}
+@keyframes drift {
+  0% { transform: translate3d(-4%, 0, 0) scale(1); }
+  50% { transform: translate3d(3%, 2%, 0) scale(1.08); }
+  100% { transform: translate3d(-2%, -1%, 0) scale(1.02); }
+}
+
+/* Ambient page background: area-tinted aurora, dot grid and film grain (see AppBackground). */
+.app-bg { --glow-a: #6366f1; --glow-b: #8b5cf6; }
+.app-bg[data-area="meals"] { --glow-a: #f97316; --glow-b: #f43f5e; }
+.app-bg[data-area="nutrition"] { --glow-a: #22c55e; --glow-b: #14b8a6; }
+.app-bg[data-area="training"] { --glow-a: #a855f7; --glow-b: #d946ef; }
+.app-bg[data-area="finances"] { --glow-a: #10b981; --glow-b: #06b6d4; }
+.app-bg[data-area="goals"] { --glow-a: #f59e0b; --glow-b: #f97316; }
+.app-bg[data-area="projects"] { --glow-a: #0ea5e9; --glow-b: #6366f1; }
+.app-bg[data-area="settings"] { --glow-a: #64748b; --glow-b: #6366f1; }
+
+.app-bg .aurora {
+  position: absolute;
+  inset: -25% -10% auto -10%;
+  height: 85vh;
+  background:
+    radial-gradient(45% 60% at 22% 30%, color-mix(in oklab, var(--glow-a) 80%, transparent), transparent 70%),
+    radial-gradient(40% 55% at 72% 18%, color-mix(in oklab, var(--glow-b) 70%, transparent), transparent 70%),
+    radial-gradient(30% 40% at 50% 60%, color-mix(in oklab, var(--glow-a) 35%, transparent), transparent 70%);
+  filter: blur(48px);
+  opacity: 0.28;
+  transition: background 800ms ease;
+  animation: drift 28s ease-in-out infinite alternate;
+}
+.dark .app-bg .aurora { opacity: 0.55; }
+
+.app-bg .dots {
+  position: absolute;
+  inset: 0;
+  background-image: radial-gradient(rgb(15 23 42 / 0.09) 1px, transparent 1px);
+  background-size: 22px 22px;
+  mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 30%, transparent 75%);
+  -webkit-mask-image: radial-gradient(ellipse 80% 60% at 50% 0%, #000 30%, transparent 75%);
+}
+.dark .app-bg .dots { background-image: radial-gradient(rgb(255 255 255 / 0.07) 1px, transparent 1px); }
+
+.app-bg .grain {
+  position: absolute;
+  inset: 0;
+  opacity: 0.035;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='160' height='160'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+.dark .app-bg .grain { opacity: 0.06; }
+
+/* Respect "reduce motion": no drifting, rising or filling. */
+@media (prefers-reduced-motion: reduce) {
+  .app-bg .aurora, .rise, .stagger > *, .bar-fill { animation: none !important; }
+  .surface-hover:hover { transform: none; }
 }

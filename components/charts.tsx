@@ -25,7 +25,7 @@ const defaultFormat = (unit: string): Formatter => (v) =>
 // Axis ticks stay bare numbers; the chart heading names the unit.
 const defaultTick: Formatter = (v) => v.toLocaleString("en-AU", { maximumFractionDigits: 1 });
 
-const PAD = { top: 16, right: 16, bottom: 28, left: 40 };
+const PAD = { top: 16, right: 16, bottom: 28, left: 52 };
 
 function useWidth<T extends HTMLElement>() {
   const ref = useRef<T>(null);
@@ -106,7 +106,7 @@ export function TableView({
             <th className="py-1 text-right font-medium">{columns[1]}</th>
           </tr>
         </thead>
-        <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+        <tbody className="divide-y divide-gray-100 dark:divide-white/[0.06]">
           {data.map((d) => (
             <tr key={d.key}>
               <td className="py-1">{d.label}</td>

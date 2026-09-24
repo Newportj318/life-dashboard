@@ -37,7 +37,7 @@ export function SupplementChecklist({ day, supplements, taken, compact = false }
               const on = done.has(s.id);
               return (
                 <li key={s.id}>
-                  <button onClick={() => toggle(s.id)} aria-pressed={on} className="flex w-full items-center gap-3 rounded-md px-1 py-1.5 text-left hover:bg-gray-50 dark:hover:bg-gray-800">
+                  <button onClick={() => toggle(s.id)} aria-pressed={on} className="flex w-full items-center gap-3 rounded-md px-1 py-1.5 text-left hover:bg-gray-50 dark:hover:bg-white/[0.06]">
                     {on ? <CircleCheck className="h-4 w-4 shrink-0 text-green-500" /> : <Circle className="h-4 w-4 shrink-0 text-gray-400" />}
                     <span className={`text-sm font-medium ${on ? "text-gray-400 line-through dark:text-gray-500" : ""}`}>{s.name}</span>
                     <span className="ml-auto text-xs text-gray-500 dark:text-gray-400">{compact ? g.label : s.dose}</span>

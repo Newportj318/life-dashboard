@@ -26,7 +26,7 @@ function useAction() {
   return { pending, error, run };
 }
 
-const card = "rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-6 shadow-sm";
+const card = "surface p-6";
 
 export function ProjectDetail({ project: p, goals, today }: { project: Project; goals: GoalOption[]; today: string }) {
   return (
@@ -156,11 +156,11 @@ function Tasks({ project: p, today }: { project: Project; today: string }) {
         <p className="text-sm text-gray-500 dark:text-gray-400">No tasks yet. Break the project into steps.</p>
       ) : (
         <>
-          <ul className="divide-y divide-gray-100 dark:divide-gray-800">{open.map(row)}</ul>
+          <ul className="divide-y divide-gray-100 dark:divide-white/[0.06]">{open.map(row)}</ul>
           {done.length > 0 && (
             <details className="mt-3">
               <summary className="cursor-pointer text-sm text-gray-500 dark:text-gray-400">Completed ({done.length})</summary>
-              <ul className="divide-y divide-gray-100 dark:divide-gray-800">{done.map(row)}</ul>
+              <ul className="divide-y divide-gray-100 dark:divide-white/[0.06]">{done.map(row)}</ul>
             </details>
           )}
         </>
@@ -191,8 +191,8 @@ function Costs({ project: p, today }: { project: Project; today: string }) {
         {p.budget != null ? `${over ? "Over" : "of"} ${money(p.budget)} budget${pct != null ? ` (${pct}%)` : ""}` : "No budget set"}
       </p>
       {pct != null && (
-        <div className="mt-2 h-2 w-full rounded-full bg-gray-200 dark:bg-gray-700" role="img" aria-label={`${pct}% of budget spent`}>
-          <div className={`h-2 rounded-full ${over ? "bg-red-500" : "bg-sky-500"}`} style={{ width: `${Math.min(100, pct)}%` }} />
+        <div className="mt-2 h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-white/10" role="img" aria-label={`${pct}% of budget spent`}>
+          <div className={`bar-fill h-2 rounded-full ${over ? "bg-red-500" : "bg-sky-500"}`} style={{ width: `${Math.min(100, pct)}%` }} />
         </div>
       )}
 
@@ -207,7 +207,7 @@ function Costs({ project: p, today }: { project: Project; today: string }) {
       {error && <p role="alert" className="mt-2 text-sm text-red-600 dark:text-red-400">{error}</p>}
 
       {p.costs.length > 0 && (
-        <ul className="mt-4 divide-y divide-gray-100 dark:divide-gray-800">
+        <ul className="mt-4 divide-y divide-gray-100 dark:divide-white/[0.06]">
           {p.costs.map((c) => (
             <li key={c.id} className="flex items-center gap-2 py-2 text-sm">
               <div className="min-w-0 flex-1">

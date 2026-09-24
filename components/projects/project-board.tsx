@@ -67,7 +67,7 @@ export function ProjectBoard({ projects, today }: { projects: Project[]; today: 
                 if (id && board.find((p) => p.id === id)?.stage !== stage.key) move(id, stage.key);
               }}
               className={`w-72 shrink-0 snap-start rounded-xl border p-3 transition-colors xl:w-auto ${
-                over === stage.key ? "border-sky-400 bg-sky-50/60 dark:bg-sky-900/20" : "border-gray-200 bg-gray-100/60 dark:border-gray-800 dark:bg-gray-900/50"
+                over === stage.key ? "border-sky-400 bg-sky-50/60 dark:bg-sky-900/20" : "border-gray-200 bg-gray-100/60 dark:border-white/[0.08] dark:bg-white/[0.02]"
               }`}
               aria-label={`${stage.label} projects`}
             >
@@ -90,7 +90,7 @@ export function ProjectBoard({ projects, today }: { projects: Project[]; today: 
                         setDragging(p.id);
                       }}
                       onDragEnd={() => setDragging(null)}
-                      className={`rounded-lg border border-gray-200 bg-white p-3 shadow-sm dark:border-gray-800 dark:bg-gray-900 ${dragging === p.id ? "opacity-50" : ""}`}
+                      className={`surface surface-hover rounded-xl p-3 ${dragging === p.id ? "opacity-50" : ""}`}
                     >
                       <Link href={`/projects/${p.id}`} className="block font-medium hover:underline">{p.title}</Link>
                       {next && p.stage !== "done" && (
@@ -115,7 +115,7 @@ export function ProjectBoard({ projects, today }: { projects: Project[]; today: 
                         <button
                           disabled={si === 0}
                           onClick={() => move(p.id, STAGES[si - 1].key)}
-                          className="rounded p-1 text-gray-400 enabled:hover:bg-gray-100 enabled:hover:text-gray-700 disabled:opacity-30 dark:enabled:hover:bg-gray-800"
+                          className="rounded p-1 text-gray-400 enabled:hover:bg-gray-100 enabled:hover:text-gray-700 disabled:opacity-30 dark:enabled:hover:bg-white/[0.06]"
                           aria-label={si > 0 ? `Move ${p.title} to ${STAGES[si - 1].label}` : undefined}
                         >
                           <ChevronLeft className="h-4 w-4" />
@@ -123,7 +123,7 @@ export function ProjectBoard({ projects, today }: { projects: Project[]; today: 
                         <button
                           disabled={si === STAGES.length - 1}
                           onClick={() => move(p.id, STAGES[si + 1].key)}
-                          className="rounded p-1 text-gray-400 enabled:hover:bg-gray-100 enabled:hover:text-gray-700 disabled:opacity-30 dark:enabled:hover:bg-gray-800"
+                          className="rounded p-1 text-gray-400 enabled:hover:bg-gray-100 enabled:hover:text-gray-700 disabled:opacity-30 dark:enabled:hover:bg-white/[0.06]"
                           aria-label={si < STAGES.length - 1 ? `Move ${p.title} to ${STAGES[si + 1].label}` : undefined}
                         >
                           <ChevronRight className="h-4 w-4" />

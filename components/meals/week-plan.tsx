@@ -59,7 +59,7 @@ export function WeekPlan({
           const dayEntries = entries.filter((e) => e.day === d.day);
           const kcalPct = d.target?.kcal ? Math.round((d.totals.kcal / d.target.kcal) * 100) : null;
           return (
-            <section key={d.day} className="flex flex-col rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-4 shadow-sm">
+            <section key={d.day} className="flex flex-col surface p-4">
               <header className="mb-3">
                 <h3 className="text-sm font-semibold">{d.label}</h3>
                 <p className="mt-0.5 inline-flex items-center gap-1 text-xs text-gray-500 dark:text-gray-400">
@@ -86,7 +86,7 @@ export function WeekPlan({
                       {slotEntries.length === 0 ? (
                         <button
                           onClick={() => setPicking({ day: d.day, slot })}
-                          className="mt-1 w-full rounded-md border border-dashed border-gray-200 dark:border-gray-800 px-2 py-1.5 text-left text-xs text-gray-400 hover:border-orange-300 hover:text-orange-600"
+                          className="mt-1 w-full rounded-md border border-dashed border-gray-200 dark:border-white/[0.08] px-2 py-1.5 text-left text-xs text-gray-400 hover:border-orange-300 hover:text-orange-600"
                         >
                           Add meal
                         </button>
@@ -122,7 +122,7 @@ export function WeekPlan({
                 })}
               </div>
 
-              <footer className="mt-4 border-t border-gray-100 dark:border-gray-800 pt-3 text-xs">
+              <footer className="mt-4 border-t border-gray-100 dark:border-white/[0.08] pt-3 text-xs">
                 <div className="flex items-baseline justify-between gap-2">
                   <span className="font-semibold text-sm tabular-nums">{Math.round(d.totals.kcal).toLocaleString("en-AU")} kcal</span>
                   <span className="text-gray-500 dark:text-gray-400">
@@ -201,7 +201,7 @@ function MealPicker({
           ) : list.length === 0 ? (
             <p className="py-6 text-center text-sm text-gray-500 dark:text-gray-400">No meals match.</p>
           ) : (
-            <ul className="mt-3 divide-y divide-gray-100 dark:divide-gray-800">
+            <ul className="mt-3 divide-y divide-gray-100 dark:divide-white/[0.06]">
               {list.map((m) => (
                 <li key={m.id}>
                   <button onClick={() => choose(m)} className="w-full rounded-md px-2 py-2.5 text-left hover:bg-orange-50 dark:hover:bg-orange-900/20">

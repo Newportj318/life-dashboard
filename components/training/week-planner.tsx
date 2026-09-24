@@ -12,9 +12,9 @@ const STATUS: Record<DayStatus, { label: string; card: string; icon: React.Compo
   moved: { label: "Moved", icon: MoveRight, card: "border-amber-200 dark:border-amber-900 bg-amber-50 dark:bg-amber-900/20 text-amber-800 dark:text-amber-300" },
   missed: { label: "Missed", icon: CircleAlert, card: "border-red-200 dark:border-red-900 bg-red-50 dark:bg-red-900/20 text-red-800 dark:text-red-300" },
   today: { label: "Today", icon: CalendarCheck, card: "border-purple-400 dark:border-purple-500 bg-purple-50 dark:bg-purple-900/30 text-purple-800 dark:text-purple-200 ring-1 ring-purple-400/40" },
-  planned: { label: "Planned", icon: CircleDashed, card: "border-purple-200 dark:border-purple-900 bg-white dark:bg-gray-900 text-purple-800 dark:text-purple-300" },
-  rest: { label: "Rest", icon: Moon, card: "border-gray-200 dark:border-gray-800 bg-gray-50 dark:bg-gray-800/50 text-gray-600 dark:text-gray-400" },
-  unplanned: { label: "No plan", icon: CircleDashed, card: "border-dashed border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 text-gray-500 dark:text-gray-400" },
+  planned: { label: "Planned", icon: CircleDashed, card: "border-purple-200 dark:border-purple-900 bg-white dark:bg-white/[0.03] text-purple-800 dark:text-purple-300" },
+  rest: { label: "Rest", icon: Moon, card: "border-gray-200 dark:border-white/[0.08] bg-gray-50 dark:bg-gray-800/50 text-gray-600 dark:text-gray-400" },
+  unplanned: { label: "No plan", icon: CircleDashed, card: "border-dashed border-gray-200 dark:border-white/[0.08] bg-white dark:bg-white/[0.03] text-gray-500 dark:text-gray-400" },
 };
 
 const DOW = ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"];
@@ -88,13 +88,13 @@ export function WeekPlanner({
               onClick={copyLastWeek}
               disabled={!lastWeekPlan.length}
               title={lastWeekPlan.length ? undefined : "Last week has no plan"}
-              className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 dark:border-gray-800 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800 disabled:opacity-50"
+              className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 dark:border-white/[0.08] px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/[0.06] disabled:opacity-50"
             >
               <Copy className="h-4 w-4" /> Copy last week
             </button>
             <button
               onClick={() => setEditing(false)}
-              className="rounded-lg px-3 py-1.5 text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-gray-800"
+              className="rounded-lg px-3 py-1.5 text-sm font-medium text-gray-600 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-white/[0.06]"
             >
               Cancel
             </button>
@@ -109,7 +109,7 @@ export function WeekPlanner({
         ) : (
           <button
             onClick={beginEdit}
-            className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 dark:border-gray-800 px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-gray-800"
+            className="inline-flex items-center gap-1.5 rounded-lg border border-gray-200 dark:border-white/[0.08] px-3 py-1.5 text-sm font-medium text-gray-700 dark:text-gray-300 hover:bg-gray-50 dark:hover:bg-white/[0.06]"
           >
             <Pencil className="h-4 w-4" /> Edit plan
           </button>
@@ -133,7 +133,7 @@ export function WeekPlanner({
           ];
 
           return (
-            <div key={d.day} className={`flex flex-col rounded-lg border p-3 sm:min-h-32 ${editing ? "border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900" : s.card}`}>
+            <div key={d.day} className={`flex flex-col rounded-lg border p-3 sm:min-h-32 ${editing ? "border-gray-200 dark:border-white/[0.08] bg-white dark:bg-white/[0.03]" : s.card}`}>
               <p className="text-xs font-medium uppercase tracking-wide opacity-80">
                 {DOW[i]} {shortDay(d.day)}
               </p>

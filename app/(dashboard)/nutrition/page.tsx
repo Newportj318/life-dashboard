@@ -85,8 +85,8 @@ export default async function NutritionPage() {
                           <span className="text-gray-500 dark:text-gray-400"> / {goal.toLocaleString("en-AU")}{m.unit}</span>
                         </span>
                       </div>
-                      <div className="h-2 w-full rounded-full bg-gray-200 dark:bg-gray-700" role="img" aria-label={`${m.label}: ${value} of ${goal}${m.unit} planned (${pct}%)`}>
-                        <div className="h-2 rounded-full bg-green-600" style={{ width: `${Math.min(100, pct)}%` }} />
+                      <div className="h-2 w-full overflow-hidden rounded-full bg-gray-200 dark:bg-white/10" role="img" aria-label={`${m.label}: ${value} of ${goal}${m.unit} planned (${pct}%)`}>
+                        <div className="bar-fill h-2 rounded-full bg-green-600" style={{ width: `${Math.min(100, pct)}%` }} />
                       </div>
                     </div>
                   );
@@ -109,7 +109,7 @@ export default async function NutritionPage() {
                     <th className="pb-2 text-right font-medium">Protein</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-gray-100 dark:divide-gray-800">
+                <tbody className="divide-y divide-gray-100 dark:divide-white/[0.06]">
                   {days.map((d) => {
                     const t = round(dayTotals(plan.filter((e) => e.day === d), meals));
                     const goal = targets[kinds[d].kind];

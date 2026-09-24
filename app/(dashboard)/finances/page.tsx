@@ -63,7 +63,7 @@ export default async function FinancesPage() {
       )}
 
       {summary && (
-        <div className="mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
+        <div className="stagger mb-8 grid grid-cols-1 gap-6 sm:grid-cols-2 xl:grid-cols-4">
           <StatCard
             icon={TrendingUp}
             accent="emerald"
@@ -119,7 +119,7 @@ export default async function FinancesPage() {
                   .filter((g) => g.items.length)
                   .map((g) => (
                     <div key={g.key}>
-                      <div className="mb-2 flex items-baseline justify-between gap-3 border-b border-gray-100 dark:border-gray-800 pb-2">
+                      <div className="mb-2 flex items-baseline justify-between gap-3 border-b border-gray-100 dark:border-white/[0.08] pb-2">
                         <h3 className="text-xs font-medium uppercase tracking-wide text-gray-500 dark:text-gray-400">{g.title}</h3>
                         <span className="text-sm font-semibold tabular-nums">{money(g.total)}</span>
                       </div>
@@ -147,7 +147,7 @@ export default async function FinancesPage() {
             <p className="py-6 text-center text-sm text-gray-500 dark:text-gray-400">No bills in the next {BILL_DAYS} days.</p>
           ) : (
             <>
-              <ul className="divide-y divide-gray-100 dark:divide-gray-800">
+              <ul className="divide-y divide-gray-100 dark:divide-white/[0.06]">
                 {bills.map((b) => (
                   <li key={b.id} className="flex items-center gap-3 py-2.5 first:pt-0">
                     <div className="w-12 shrink-0 text-center">

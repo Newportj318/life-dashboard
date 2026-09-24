@@ -14,7 +14,7 @@ export function MealTabs() {
   // Keep the selected week when switching between the plan and the shopping list.
   const week = useSearchParams().get("week");
   return (
-    <nav className="mb-6 flex gap-1 overflow-x-auto border-b border-gray-200 dark:border-gray-800" aria-label="Meals">
+    <nav className="mb-6 flex gap-1 overflow-x-auto border-b border-gray-200 dark:border-white/[0.08]" aria-label="Meals">
       {TABS.map((t) => {
         const active = t.match(pathname);
         const href = week && t.href !== "/meals/library" ? `${t.href}?week=${week}` : t.href;

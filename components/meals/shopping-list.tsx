@@ -32,7 +32,7 @@ export function ShoppingList({ weekStart, items, initial }: { weekStart: string;
       <Group title={`To buy (${toBuy.length})`} empty={items.length ? "Everything's sorted for this week." : null}>
         {toBuy.map((i) => (
           <ItemRow key={i.foodId} item={i}>
-            <button onClick={() => set(i.foodId, "have")} className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800" title="Already in the pantry">
+            <button onClick={() => set(i.foodId, "have")} className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-gray-500 hover:bg-gray-100 dark:hover:bg-white/[0.06]" title="Already in the pantry">
               <Home className="h-3.5 w-3.5" /> Have it
             </button>
             <button onClick={() => set(i.foodId, "bought")} className="grid h-7 w-7 place-content-center rounded-md border border-gray-300 dark:border-gray-600 hover:border-orange-500" aria-label={`Mark ${i.name} bought`}>
@@ -58,7 +58,7 @@ export function ShoppingList({ weekStart, items, initial }: { weekStart: string;
         <Group title={`Already have (${have.length})`}>
           {have.map((i) => (
             <ItemRow key={i.foodId} item={i} done>
-              <button onClick={() => set(i.foodId, null)} className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800">
+              <button onClick={() => set(i.foodId, null)} className="inline-flex items-center gap-1 rounded-md px-2 py-1 text-xs text-gray-500 hover:bg-gray-100 dark:hover:bg-white/[0.06]">
                 <RotateCcw className="h-3.5 w-3.5" /> Need it
               </button>
             </ItemRow>
@@ -72,9 +72,9 @@ export function ShoppingList({ weekStart, items, initial }: { weekStart: string;
 function Group({ title, empty, children }: { title: string; empty?: string | null; children: React.ReactNode }) {
   const hasChildren = Array.isArray(children) ? children.length > 0 : Boolean(children);
   return (
-    <section className="rounded-xl border border-gray-200 dark:border-gray-800 bg-white dark:bg-gray-900 p-5 shadow-sm">
+    <section className="surface p-5">
       <h2 className="mb-3 text-sm font-semibold">{title}</h2>
-      {hasChildren ? <ul className="divide-y divide-gray-100 dark:divide-gray-800">{children}</ul> : empty && <p className="text-sm text-gray-500 dark:text-gray-400">{empty}</p>}
+      {hasChildren ? <ul className="divide-y divide-gray-100 dark:divide-white/[0.06]">{children}</ul> : empty && <p className="text-sm text-gray-500 dark:text-gray-400">{empty}</p>}
     </section>
   );
 }
