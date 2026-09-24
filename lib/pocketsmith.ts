@@ -1,4 +1,5 @@
 import "server-only";
+import { secret } from "@/lib/env";
 
 // PocketSmith API v2. https://developers.pocketsmith.com
 const BASE = "https://api.pocketsmith.com/v2";
@@ -29,11 +30,11 @@ export type PsEvent = {
 };
 
 export function pocketsmithConfigured() {
-  return Boolean(process.env.POCKETSMITH_API_KEY);
+  return Boolean(secret("POCKETSMITH_API_KEY"));
 }
 
 async function psFetch(url: URL) {
-  const key = process.env.POCKETSMITH_API_KEY;
+  const key = secret("POCKETSMITH_API_KEY");
   if (!key) throw new Error("POCKETSMITH_API_KEY is not set");
   const res = await fetch(url, {
     headers: { "X-Developer-Key": key, accept: "application/json" },

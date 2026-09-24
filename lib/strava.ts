@@ -1,4 +1,5 @@
 import "server-only";
+import { secret } from "@/lib/env";
 import { createClient } from "@/lib/supabase/server";
 
 // Strava API v3. Tokens live in the `integrations` table and are refreshed as needed.
@@ -26,12 +27,12 @@ type TokenResponse = {
 };
 
 export function stravaConfigured() {
-  return Boolean(process.env.STRAVA_CLIENT_ID && process.env.STRAVA_CLIENT_SECRET);
+  return Boolean(secret("STRAVA_CLIENT_ID") && secret("STRAVA_CLIENT_SECRET"));
 }
 
 export function stravaAuthorizeUrl(redirectUri: string, state: string) {
   const url = new URL(`${OAUTH}/authorize`);
-  url.searchParams.set("client_id", process.env.STRAVA_CLIENT_ID!);
+  url.searchParams.set("client_id", secret("STRAVA_CLIENT_ID")!);
   url.searchParams.set("redirect_uri", redirectUri);
   url.searchParams.set("response_type", "code");
   url.searchParams.set("approval_prompt", "auto");
@@ -45,8 +46,8 @@ async function tokenRequest(body: Record<string, string>): Promise<TokenResponse
     method: "POST",
     headers: { "content-type": "application/json" },
     body: JSON.stringify({
-      client_id: process.env.STRAVA_CLIENT_ID,
-      client_secret: process.env.STRAVA_CLIENT_SECRET,
+      client_id: secret("STRAVA_CLIENT_ID"),
+      client_secret: secret("STRAVA_CLIENT_SECRET"),
       ...body,
     }),
     cache: "no-store",

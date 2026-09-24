@@ -1,4 +1,5 @@
 import "server-only";
+import { secret } from "@/lib/env";
 import { addDays, localDay } from "@/lib/dates";
 
 // Hevy public API (needs Hevy Pro). https://api.hevyapp.com/docs
@@ -35,11 +36,11 @@ export type BodyMeasurement = { date: string; weight_kg?: number | null };
 export class HevyNotConfigured extends Error {}
 
 export function hevyConfigured() {
-  return Boolean(process.env.HEVY_API_KEY);
+  return Boolean(secret("HEVY_API_KEY"));
 }
 
 async function hevyGet<T>(path: string, params: Record<string, string | number> = {}): Promise<T> {
-  const key = process.env.HEVY_API_KEY;
+  const key = secret("HEVY_API_KEY");
   if (!key) throw new HevyNotConfigured("HEVY_API_KEY is not set");
 
   const url = new URL(BASE + path);
